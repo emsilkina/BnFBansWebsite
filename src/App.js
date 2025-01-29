@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import './App.css';
+import app from "./firebase-config"; // Import the Firebase setup
 
 function App() {
   // Initialize state for the people array
