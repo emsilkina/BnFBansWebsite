@@ -1,24 +1,32 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
-import app from "./firebase-config"; // Import the Firebase setup
+import { db } from './firebase-config'; // Only import Firestore (db)
+import { collection, getDocs } from 'firebase/firestore'; // Import Firestore functions
 
 function App() {
-  // Initialize state for the people array
-  const [people, setPeople] = useState([
-    { name: "Emily", bans: 3 },
-    { name: "Rifa", bans: 0 }, 
-    { name: "Omkar", bans: 1 },
-    { name: "Soorya", bans: 0 }, 
-    { name: "Naavya", bans: 0 }
-  ]);
+  const [people, setPeople] = useState([]);
 
-  // Handle the button click to add a ban to the person
+  useEffect(() => {
+    // Fetch people data from Firestore when the component mounts
+    const fetchPeople = async () => {
+      const peopleCollection = collection(db, 'People'); // Specify your collection name
+      const peopleSnapshot = await getDocs(peopleCollection);
+      const peopleList = peopleSnapshot.docs.map(doc => ({
+        name: doc.id, // Assuming each document has the person's name as the document ID
+        bans: 0 // Initialize bans as 0 (you can change this if you have a bans field in Firestore)
+      }));
+      setPeople(peopleList); // Set people state with fetched data
+    };
+
+    fetchPeople();
+  }, []); // Empty array ensures this effect runs only once on mount
+
   const addBans = (name) => {
     setPeople(prevPeople =>
       prevPeople.map(person =>
         person.name === name
-          ? { ...person, bans: person.bans + 1 } // Increment the bans count
-          : person // Leave other people unchanged
+          ? { ...person, bans: person.bans + 1 }
+          : person
       )
     );
   };
@@ -27,16 +35,15 @@ function App() {
     setPeople(prevPeople =>
       prevPeople.map(person =>
         person.name === name
-        ? { 
-          ...person, 
-          bans: person.bans > 0 ? person.bans - 1 : person.bans // Only decrement if bans > 0
-        } // Increment the bans count
-          : person // Leave other people unchanged
+          ? { 
+            ...person, 
+            bans: person.bans > 0 ? person.bans - 1 : person.bans 
+          }
+          : person
       )
     );
   };
 
-  // Render each person's information along with the button
   const person = (name, bans) => {
     return (
       <div key={name}>
