@@ -1,61 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
-import app from "./firebase-config"; // Import the Firebase setup
+import { db } from './firebase-config'; // Only import Firestore (db)
+import { collection, getDocs } from 'firebase/firestore'; // Import Firestore functions
 
 function App() {
-  // Initialize state for the people array
-  const [people, setPeople] = useState([
-    { name: "Emily", bans: 3 },
-    { name: "Rifa", bans: 0 }, 
-    { name: "Omkar", bans: 1 },
-    { name: "Soorya", bans: 0 }, 
-    { name: "Naavya", bans: 0 }
-  ]);
-
-  // Handle the button click to add a ban to the person
-  const addBans = (name) => {
-    setPeople(prevPeople =>
-      prevPeople.map(person =>
-        person.name === name
-          ? { ...person, bans: person.bans + 1 } // Increment the bans count
-          : person // Leave other people unchanged
-      )
-    );
-  };
-
-  const subtractBans = (name) => {
-    setPeople(prevPeople =>
-      prevPeople.map(person =>
-        person.name === name
-        ? { 
-          ...person, 
-          bans: person.bans > 0 ? person.bans - 1 : person.bans // Only decrement if bans > 0
-        } // Increment the bans count
-          : person // Leave other people unchanged
-      )
-    );
-  };
-
-  // Render each person's information along with the button
-  const person = (name, bans) => {
-    return (
-      <div key={name}>
-        <p>{name} has {bans} bans</p>
-        <button className="my-button" onClick={() => subtractBans(name)}>
-          Subtract Bans
-        </button>
-        <button className="my-button" onClick={() => addBans(name)}>
-          Add Bans
-        </button>
-      </div>
-    );
-  };
-
   return (
     <div className="App">
-      {people.map(personData => person(personData.name, personData.bans))}
+      <TransactionInfo/>
+    </div>
+  );
+}
+
+function get_transaction_data() {
+  return { "wallet_address": "0x123ABC...", "ETH_sent": 5, "ETH_received": 2 };
+}
+
+const TransactionInfo = () => {
+  const transaction_data = get_transaction_data();
+  const walletAddress = transaction_data["wallet_address"];
+  const EthSent = transaction_data["ETH_sent"];
+  const EthReceived = transaction_data["ETH_received"];
+
+  return(
+    <div>
+      <p>Wallet Address: ${walletAddress}</p>
+      <p>Eth Sent: ${EthSent}</p>
+      <p>Eth Received: ${EthReceived}</p>
     </div>
   );
 }
 
 export default App;
+
